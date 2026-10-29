@@ -22,6 +22,51 @@ namespace DA.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Abstracciones.Agentes.Agente", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("CapacidadMaximaTickets")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("FechaIngreso")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Correo")
+                        .IsUnique();
+
+                    b.ToTable("Agentes", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Agentes_Capacidad", "[CapacidadMaximaTickets] BETWEEN 1 AND 50");
+                        });
+                });
+
             modelBuilder.Entity("Abstracciones.Clientes.Cliente", b =>
                 {
                     b.Property<int>("Id")
@@ -190,6 +235,8 @@ namespace DA.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AgenteId");
+
                     b.HasIndex("ClienteId");
 
                     b.HasIndex("Codigo")
@@ -234,13 +281,25 @@ namespace DA.Migrations
 
             modelBuilder.Entity("Abstracciones.Tickets.Ticket", b =>
                 {
+                    b.HasOne("Abstracciones.Agentes.Agente", "Agente")
+                        .WithMany("Tickets")
+                        .HasForeignKey("AgenteId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Abstracciones.Clientes.Cliente", "Cliente")
                         .WithMany("Tickets")
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Agente");
+
                     b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("Abstracciones.Agentes.Agente", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("Abstracciones.Clientes.Cliente", b =>
