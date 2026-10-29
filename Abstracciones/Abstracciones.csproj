@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk"><!-- Sin referencias a otros proyectos y sin paquetes: es la capa que todas las demás conocen. -->
+
+</Project>
